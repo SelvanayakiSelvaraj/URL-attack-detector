@@ -1,0 +1,17 @@
+src/main/java/com/selvanayaki/url_attack_detector/controller/AnalyzeController.java
+
+package com.selvanayaki.url_attack_detector.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AnalyzeController {
+
+    @GetMapping("/analyze-url")
+    public String analyzeUrl(@RequestParam String url) {
+        // Temporary stub
+        return "Feature in progress: URL analysis will be implemented soon";
+    }
+}
