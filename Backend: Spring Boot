@@ -1,0 +1,59 @@
+//java
+package com.selvanayaki.url_attack_detector.controller;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+@RestController
+@CrossOrigin(origins = "*")
+public class UrlController {
+    @Value("${ml.api.url}")
+    private String mlApiUrl;
+    @GetMapping("/analyze-url")
+    public ResponseEntity<?> analyzeUrl(@RequestParam(name = "url") String url) {
+        try {
+            String jsonPayload = "{\"url\": \"" + url.replace("\"", "\\\"") + "\"}";
+            URL obj = new URL(mlApiUrl);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+            con.setConnectTimeout(10000);
+            con.setReadTimeout(10000);
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonPayload.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+            int responseCode = con.getResponseCode();
+            BufferedReader in;
+            if (responseCode >= 200 && responseCode <= 299) {
+                in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            } else {
+                in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+            }
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return ResponseEntity.status(responseCode)
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .body(response.toString());
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to connect to ML service: " + e.getMessage());
+            errorResponse.put("url", url);
+            errorResponse.put("prediction", "Unknown");
+            errorResponse.put("attack_type", "None");
+            errorResponse.put("risk_level", "Unknown");
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+}
