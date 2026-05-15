@@ -1,0 +1,39 @@
+ML Backend (Python / Machine Learning)
+
+
+
+python
+from flask import Flask, request, jsonify
+import pickle
+import os
+app = Flask(__name__)
+# Load Pre-trained Models
+def load_models():
+    global vectorizer, url_model, type_model
+    with open('model/vectorizer.pkl', 'rb') as f: vectorizer = pickle.load(f)
+    with open('model/url_model.pkl', 'rb') as f: url_model = pickle.load(f)
+    with open('model/type_model.pkl', 'rb') as f: type_model = pickle.load(f)
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json()
+    url = data.get('url', '')
+    
+    # ML Prediction Logic
+    X = vectorizer.transform([url])
+    prediction = url_model.predict(X)[0]
+    
+    attack_type = 'None'
+    risk_level = 'Low'
+    
+    if prediction == 'Malicious':
+        attack_type = type_model.predict(X)[0]
+        risk_level = 'High' if attack_type != 'XSS' else 'Medium'
+    return jsonify({
+        'url': url,
+        'prediction': prediction,
+        'attack_type': attack_type,
+        'risk_level': risk_level
+    })
+if __name__ == '__main__':
+    load_models()
+    app.run(port=5000)
