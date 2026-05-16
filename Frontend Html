@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Based URL Attack Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 500px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        p {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #eef2ff;
+            display: none;
+        }
+
+        .safe {
+            color: green;
+            font-weight: bold;
+        }
+
+        .danger {
+            color: red;
+            font-weight: bold;
+        }
+
+        .info {
+            margin-top: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔐 URL Attack Detector</h1>
+    <p>Analyze URLs for possible cyber attacks</p>
+
+    <input type="text" id="urlInput" placeholder="Enter URL here">
+
+    <button onclick="analyzeURL()">Analyze URL</button>
+
+    <div class="result" id="resultBox">
+        <h3 id="status"></h3>
+        <p class="info"><strong>Attack Type:</strong> <span id="attackType"></span></p>
+        <p class="info"><strong>Risk Level:</strong> <span id="riskLevel"></span></p>
+        <p class="info"><strong>Extracted IP:</strong> <span id="ipAddress"></span></p>
+    </div>
+</div>
+
+<script>
+    function analyzeURL() {
+        const url = document.getElementById("urlInput").value;
+
+        const resultBox = document.getElementById("resultBox");
+        const status = document.getElementById("status");
+        const attackType = document.getElementById("attackType");
+        const riskLevel = document.getElementById("riskLevel");
+        const ipAddress = document.getElementById("ipAddress");
+
+        let detectedAttack = "None";
+        let risk = "Low";
+
+        // SQL Injection Detection
+        if (url.includes("'") || url.includes("SELECT") || url.includes("DROP") || url.includes("--")) {
+            detectedAttack = "SQL Injection";
+            risk = "High";
+        }
+
+        // XSS Detection
+        else if (url.includes("<script>") || url.includes("alert(")) {
+            detectedAttack = "Cross Site Scripting (XSS)";
+            risk = "Medium";
+        }
+
+        // Path Traversal Detection
+        else if (url.includes("../") || url.includes("..\\")) {
+            detectedAttack = "Path Traversal";
+            risk = "High";
+        }
+
+        // Display Results
+        resultBox.style.display = "block";
+
+        if (detectedAttack === "None") {
+            status.innerHTML = "✅ Safe URL Detected";
+            status.className = "safe";
+        } else {
+            status.innerHTML = "⚠️ Malicious Threat Detected";
+            status.className = "danger";
+        }
+
+        attackType.innerText = detectedAttack;
+        riskLevel.innerText = risk;
+
+        // Dummy IP Extraction
+        ipAddress.innerText = "192.168.1.1";
+    }
+</script>
+
+</body>
+</html>
