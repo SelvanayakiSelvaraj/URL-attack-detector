@@ -42,9 +42,7 @@ Java
 
 Spring Boot
 
-Database
-
-MySQL
+SQL Database
 
 Tools
 
